@@ -171,15 +171,21 @@ func (s *HttpSniffer) Message() string {
 }
 
 func (s *RedisSniffer) Sniff() {
-	cli := redis.NewClient(&redis.Options{
-		Addr:     s.Url,
-		Password: s.Password, // no password set
-		DB:       s.DB,       // use default DB
-	})
+	s.succ = false
+DONE:
+	for i := uint16(0); i < s.Retry; i++ {
+		cli := redis.NewClient(&redis.Options{
+			Addr:     s.Url,
+			Password: s.Password, // no password set
+			DB:       s.DB,       // use default DB
+		})
 
-	_, err := cli.Ping().Result()
-	if err == nil {
-		s.succ = true
+		_, err := cli.Ping().Result()
+		if err == nil {
+			s.succ = true
+			cli.Close()
+			break DONE
+		}
 	}
 }
 

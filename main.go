@@ -35,7 +35,7 @@ func main() {
 		conf := NewSniffConf("sniffer.yaml")
 		sniffers := conf.Propagate()
 
-		ch := make(chan Sniffer, 10)
+		ch := make(chan Sniffer, conf.Cocurrent)
 		wg := &sync.WaitGroup{}
 		wg.Add(conf.Cocurrent)
 		for i := 0; i < conf.Cocurrent; i++ {
