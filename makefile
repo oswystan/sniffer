@@ -12,7 +12,7 @@
 src := $(shell find . -d 1 -name '*.go')
 
 sniffer: $(src)
-	go build -o $@
+	go build -mod vendor -o $@
 clean:
 	rm -f sniffer
 
