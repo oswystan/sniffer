@@ -75,6 +75,7 @@ func main() {
 		close(ch)
 		wg.Wait()
 
+		consoleReport(sniffers)
 		fileReport(sniffers, "./sniffer.log")
 
 		wg = nil
