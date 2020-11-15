@@ -6,21 +6,21 @@ services:
         service: api
         port: 443
         timeout: 1000
-        retry: 3
+        retry: 2
         file: api.txt
     -
         type: tcp
         service: load-banlancer
         port: 4430
         timeout: 1000
-        retry: 3
+        retry: 2
         address: 127.0.0.1
     -
         type: http
         service: navigator
         url: https://www.baidu.com
         timeout: 1000
-        retry: 3
+        retry: 2
     -
         type: redis
         service: prd-redis
