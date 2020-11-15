@@ -9,7 +9,7 @@
 #######################################################################
 .PHONY: all build test install doc
 
-src := $(shell find . -d 1 -name '*.go')
+src := $(shell find . -maxdepth 1 -name '*.go')
 
 sniffer: $(src)
 	go build -mod vendor -o $@
