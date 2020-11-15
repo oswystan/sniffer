@@ -1,7 +1,14 @@
 package main
 
 import (
+	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"net/http"
+	"net/url"
 	"os"
 	"sync"
 	"time"
@@ -55,6 +62,34 @@ func fileReport(sniffers []Sniffer, fn string) {
 	}
 }
 
+func yachReport(sniffers []Sniffer) {
+	const yachUrl = ""
+	const key = ""
+	timestamp := time.Now().UnixNano() / 1000000
+	sign := fmt.Sprintf("%d\n%s", timestamp, key)
+	hash := hmac.New(sha256.New, []byte(key))
+	hash.Write([]byte(sign))
+
+	sign = base64.StdEncoding.EncodeToString(hash.Sum(nil))
+	sign = url.QueryEscape(sign)
+	targetUrl := fmt.Sprintf("%s&timestamp=%d&sign=%s", yachUrl, timestamp, sign)
+
+	for _, one := range sniffers {
+		data, _ := json.Marshal(&YachData{
+			MsgType: "text",
+			Text: YachText{
+				Content: one.Message() + " port check failed",
+			},
+		})
+		fmt.Println(string(data))
+		resp, err := http.Post(targetUrl, "application/json", bytes.NewReader(data))
+		if err == nil {
+			defer resp.Body.Close()
+		}
+		data = nil
+	}
+}
+
 func main() {
 	for {
 		conf := NewSniffConf("sniffer.yaml")
@@ -75,8 +110,8 @@ func main() {
 		close(ch)
 		wg.Wait()
 
-		consoleReport(sniffers)
 		fileReport(sniffers, "./sniffer.log")
+		yachReport(sniffers)
 
 		wg = nil
 		sniffers = nil
